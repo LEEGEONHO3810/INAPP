@@ -1,0 +1,11 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itfactory.solution.Mapper.POSTGRES_MES.SYSTEM_CHECK_MESMapper">
+	
+	<update id="ERROR_CONFIRM" parameterType="HashMap">
+		update tbl_error_code
+		   set clm_error_yn = #{error_yn}, clm_recently_check_datetime = left(cast(now() as varchar), 19)
+		 where clm_code_id = #{code_id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,270 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itfactory.solution.Mapper.POSTGRES_MES.POSTGRES_MESMapper">
+	
+	<insert id="RegTempAlarm">
+		insert into tbl_kko_talk_send 
+			(clm_company_key ,clm_template_code ,clm_message, clm_attach ,clm_recipient ) 
+		values ('0001', 'ITFACTORY_DEER_TEMP_ALRAM', '[아라모드]
+		온도 이상이 발생하였습니다.
+		기준 온도 : '||#{clm_standard_temp_humidity}||'
+		현재 온도 : '||#{clm_temp_humidity}, '', #{clm_phone_number} )
+	</insert>
+	
+	<insert id="RegHumidityAlarm">
+		insert into tbl_kko_talk_send 
+			(clm_company_key ,clm_template_code ,clm_message, clm_attach ,clm_recipient ) 
+		values ('0001', 'ITFACTORY_DEER_TEMP_ALRAM', '[아라모드]
+		습도 이상이 발생하였습니다.
+		기준 습도 : '||#{clm_standard_temp_humidity}||'
+		현재 습도 : '||#{clm_temp_humidity}, '', #{clm_phone_number} )
+	</insert>
+	
+	<select id="ServerList" resultType="HashMap" parameterType="HashMap">
+		select  cast(ROW_NUMBER() OVER (ORDER BY clm_order_seq) as varchar) num, coalesce(clm_server_id,'') clm_server_id,  coalesce(clm_company_name,'') clm_company_name ,  coalesce(clm_company_server_gubun,'') clm_company_server_gubun,  coalesce(clm_program_gubun,'') clm_program_gubun,  coalesce(clm_server_location,'') clm_server_location,  coalesce(clm_server_inner_location,'') clm_server_inner_location,  coalesce(clm_inner_port,'') clm_inner_port, coalesce(clm_outer_port,'') clm_outer_port,  coalesce(clm_login_url,'') clm_login_url,  coalesce(clm_login_id,'')  clm_login_id,  coalesce(clm_login_pw,'') clm_login_pw ,  coalesce(clm_comment,'') clm_comment,  coalesce(clm_use_yn,'') clm_use_yn , 'N' clm_change_yn, 'N' clm_save_yn, cast(coalesce(clm_order_seq,9999) as varchar) clm_order_seq 
+		from tbl_server_info tsi 
+		where clm_delete_yn = 'N'
+		<if test='search != null and search != "" '>
+	      and (clm_company_name ilike '%' || trim(#{search}) || '%'
+	       or clm_company_server_gubun ilike '%' || trim(#{search}) || '%'
+	       or clm_program_gubun ilike '%' || trim(#{search}) || '%'
+	       or clm_server_inner_location ilike '%' || trim(#{search}) || '%'
+	       or clm_inner_port ilike '%' || trim(#{search}) || '%'
+	       or clm_outer_port ilike '%' || trim(#{search}) || '%'
+	       or clm_login_url ilike '%' || trim(#{search}) || '%'
+	       or clm_comment ilike '%' || trim(#{search}) || '%')
+		</if>
+		<if test='search2 != null and search2 != "" '>
+		  and (clm_server_location ilike '%' || trim(#{search2}) || '%')
+		</if>
+		<if test='search3 != null and search3 != "" '>
+		  and (clm_use_yn ilike '%' || trim(#{search3}) || '%')
+		</if>
+		order by cast(clm_order_seq as integer)
+	</select>
+	
+	<select id="AccountList" resultType="HashMap" parameterType="HashMap">
+		select coalesce (x.clm_note_id ,'') clm_note_id , coalesce (x.clm_title ,'') clm_title 
+		  , coalesce (x.clm_content ,'') clm_content, coalesce (x.clm_content_seq ,'') clm_content_seq 
+			from tbl_notepad_info x
+		where 1=1  and x.clm_delete_yn = 'N'
+		<if test='search != null and search != "" '>
+	      and (x.clm_title ilike '%' || trim(#{search}) || '%'
+	       or x.clm_content ilike '%' || trim(#{search}) || '%' )
+		</if>
+		order by cast(x.clm_content_seq as integer), cast(x.clm_note_id as integer)
+	</select>
+	
+	<select id="kakaoError" resultType="HashMap" parameterType="HashMap">
+		select cast(ROW_NUMBER() OVER (ORDER BY clm_code_id)-1 as varchar) num_index 
+		, coalesce (x.clm_code_id,'') clm_code_id , coalesce (x.clm_code_name,'') clm_code_name
+		, coalesce (x.clm_code_text,'') clm_code_text 
+		, coalesce (x.clm_code_db_info,'') clm_code_db_info , coalesce (x.clm_code_query_check,'') clm_code_query_check
+		, coalesce (x.clm_code_website_check,'') clm_code_website_check , coalesce (x.clm_method_program_check,'') clm_method_program_check
+		, coalesce (x.clm_recently_check_datetime,'') clm_recently_check_datetime , coalesce (x.clm_error_yn,'') clm_error_yn
+		, coalesce (x.clm_kko_send_datetime,'') clm_kko_send_datetime , coalesce (x.clm_alarm_yn,'') clm_alarm_yn 
+		, coalesce (x.clm_use_yn,'') clm_use_yn 
+		, case when clm_code_query_check != '' then '쿼리' when clm_code_website_check != '' then '웹' when clm_method_program_check != '' then '프로그램' end clm_error_gubun_name
+		, case when clm_code_query_check != '' then 'Q' when clm_code_website_check != '' then 'W' when clm_method_program_check != '' then 'P' end clm_error_gubun
+		, coalesce(clm_alarm_yn,'N') clm_alarm_yn, coalesce(clm_alarm_cycle,'') clm_alarm_cycle, coalesce(clm_alarm_daily_count,'') clm_alarm_daily_count
+		, case when coalesce(clm_alarm_yn,'N')='N' then '' else 'Y' end clm_toggle_yn
+		from tbl_error_code x
+		where 1=1 and x.clm_use_yn = 'Y'
+		<if test='search != null and search != "" '>
+	      and (x.clm_code_text ilike '%' || trim(#{search}) || '%'
+	       or x.clm_code_name ilike '%' || trim(#{search}) || '%' )
+		</if>
+		order by cast(x.clm_code_id as integer)
+	</select>
+	
+	<select id="kakaoPhone" resultType="HashMap" parameterType="HashMap">
+		
+		select  x.clm_user_name , x.clm_user_phone , x.clm_code_id 
+				, y.clm_code_name , x.clm_kep_id
+			from tbl_kko_talk_phone x
+			left outer join tbl_error_code y on x.clm_code_id = y.clm_code_id
+			where  x.clm_delete_yn = 'N' and y.clm_use_yn = 'Y'
+			 and x.clm_code_id =#{code_id}
+		<if test='search != null and search != "" '>
+	      and (x.clm_user_name ilike '%' || trim(#{search}) || '%'
+	       or x.clm_user_phone ilike '%' || trim(#{search}) || '%' )
+		</if>
+		order by cast(x.clm_kep_id as integer)
+	</select>
+	
+	<update id="AllDeletePhone"  parameterType="HashMap">
+		
+		update tbl_kko_talk_phone 
+		   set clm_delete_yn = 'Y'
+		   		, clm_delete_datetime = to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying
+		 where clm_code_id = #{clm_code_id}
+		
+	</update>
+	
+	<insert id="ErrorSave" parameterType="HashMap">
+		insert into tbl_error_code
+			(clm_code_id,clm_code_name, clm_code_text, clm_code_db_info,clm_code_query_check, clm_code_website_check, clm_method_program_check, clm_alarm_yn, clm_alarm_cycle, clm_alarm_daily_count)
+		values
+			((select case when max(clm_code_id) is null then '0001' else LPAD(cast(max(cast(clm_code_id as numeric))+1 as varchar),4,'0') end from tbl_error_code)
+			, #{clm_code_name}, #{clm_code_text}, #{clm_code_db_info}, #{clm_code_query_check}, #{clm_code_web_check}, #{clm_code_program_check}, #{clm_alarm_yn}, #{clm_alarm_cycle}, #{clm_alarm_daily_count})
+	</insert>
+	
+	<update id="ErrorUpdate" parameterType="HashMap">
+		update tbl_error_code 
+		   set clm_code_name = #{clm_code_name}
+		   		, clm_code_text = #{clm_code_text}
+		   		, clm_code_db_info = #{clm_code_db_info}
+		   		, clm_code_query_check = #{clm_code_query_check}
+		   		, clm_code_website_check = #{clm_code_web_check}
+		   		, clm_method_program_check = #{clm_code_program_check}
+		   		, clm_alarm_yn = #{clm_alarm_yn}
+		   		, clm_alarm_cycle = #{clm_alarm_cycle}
+		   		, clm_alarm_daily_count = #{clm_alarm_daily_count}
+		 where clm_code_id = #{clm_code_id} 
+	</update>
+	
+	<update id="ErrorDelete" parameterType="HashMap">
+		update tbl_error_code 
+		   set clm_use_yn = 'N'
+		 where clm_code_id = #{clm_code_id}
+	</update>
+	
+	
+	<insert id="PhoneReg" parameterType="HashMap">
+		insert into tbl_kko_talk_phone
+			(clm_kep_id,clm_code_id, clm_user_name, clm_user_phone, clm_reg_datetime , clm_reg_user)
+		values
+			((select case when max(clm_kep_id) is null then '000001' else LPAD(cast(max(cast(clm_kep_id as numeric))+1 as varchar),6,'0') end from tbl_kko_talk_phone)
+			, #{clm_code_id}, #{clm_user_name}, #{clm_phone_number}, to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying , #{clm_user} )
+	</insert>
+	
+	
+	<update id="PhoneUpdate" parameterType="HashMap">
+		update tbl_kko_talk_phone 
+		   set clm_code_id = #{clm_code_id}
+		   		, clm_user_name = #{clm_user_name}
+		   		, clm_user_phone = #{clm_phone_number}
+		   		, clm_update_datetime = to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying
+		   		, clm_update_user = #{clm_user}
+		 where clm_kep_id = #{clm_kep_id} 
+	</update>
+	
+	<update id="PhoneDelete" parameterType="HashMap">
+		update tbl_kko_talk_phone 
+		   set clm_delete_yn = 'Y'
+		   		, clm_delete_datetime = to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying
+		 where clm_kep_id = #{clm_kep_id} and clm_code_id = #{clm_code_id}
+	</update>
+	
+	<update id="CheckSeq" parameterType="HashMap">
+		update tbl_notepad_info 
+		   set clm_content_seq = '1'
+		 where clm_note_id = #{clm_note_id} and clm_content_seq = '0'
+	</update>
+	
+	<update id="UnCheckSeq" parameterType="HashMap">
+		update tbl_notepad_info 
+		   set clm_content_seq = '0'
+		 where clm_note_id = #{clm_note_id} and clm_content_seq = '1'
+	</update>
+	
+	
+	<update id="Delete" parameterType="HashMap">
+		update tbl_server_info 
+		   set clm_delete_yn = 'Y'
+		 where clm_server_id = #{clm_server_id}
+	</update>
+	
+	
+	<select id="ExistYn" resultType="String" parameterType="HashMap">
+		select case when count(*) > 0 then 'Y' else 'N' end 
+		from tbl_server_info
+		where clm_company_name = #{clm_company_name} and clm_company_server_gubun = #{clm_company_server_gubun} and clm_inner_port = #{clm_inner_port} and clm_login_url = #{clm_login_url} and clm_outer_port = #{clm_outer_port} and clm_program_gubun = #{clm_program_gubun} and clm_server_inner_location = #{clm_server_inner_location} and clm_server_location = #{clm_server_location} and clm_use_yn = #{clm_use_yn} and clm_server_id != #{clm_server_id}	
+	</select>
+	
+	<insert id="Save" parameterType="HashMap">
+		insert into tbl_server_info
+			(clm_company_name, clm_company_server_gubun, clm_program_gubun, clm_server_location, clm_server_inner_location, clm_inner_port, clm_outer_port, clm_login_url, clm_login_id, clm_login_pw, clm_comment, clm_use_yn, clm_order_seq)
+		values
+			(#{clm_company_name}, #{clm_company_server_gubun}, #{clm_program_gubun}, #{clm_server_location}, #{clm_server_inner_location}, #{clm_inner_port}, #{clm_outer_port}, #{clm_login_url}, #{clm_login_id}, #{clm_login_pw}, #{clm_comment}, #{clm_use_yn}, ${clm_order_seq})
+	</insert>
+	
+
+	
+	<insert id="AccountSave" parameterType="HashMap">
+		insert into tbl_notepad_info
+			(clm_note_id, clm_title, clm_content, clm_content_seq, clm_reg_datetime , clm_reg_user)
+		values
+			((select case when max(clm_note_id) is null then '000001' else case char_length(cast(max(cast(coalesce(clm_note_id,'0') as numeric))+1 as varchar)) when 1 then '00000' when 2 then '0000' when 3 then '000' when 4 then '00' when 5 then '0' else '' end || cast(max(cast(coalesce(clm_note_id,'0') as numeric))+1 as varchar) end from tbl_notepad_info)
+			, #{clm_title}, #{clm_content}, #{clm_content_seq} , to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying  
+			, #{clm_user})
+	</insert>
+	
+	
+	<update id="AccountUpdate" parameterType="HashMap">
+	
+		update tbl_notepad_info
+		set clm_title = #{clm_title}
+		 , clm_content = #{clm_content} 
+		 , clm_update_user = #{clm_user} 
+		 , clm_update_datetime = to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying
+		where clm_note_id = #{clm_note_id}
+			
+	</update>
+	
+	<update id="AccountDelete" parameterType="HashMap">
+	
+		update tbl_notepad_info
+		set clm_delete_yn = 'Y'
+		 , clm_delete_datetime = to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying
+		where clm_note_id = #{clm_note_id}
+			
+	</update>
+	
+	<update id="SeqUpdate" parameterType="HashMap">
+		update tbl_server_info
+        set clm_order_seq = clm_order_seq + 1
+        where clm_order_seq &gt;= ${clm_order_seq}
+	</update>
+	
+	<update id="Update" parameterType="HashMap">
+		update tbl_server_info
+		set clm_company_name = #{clm_company_name} , clm_company_server_gubun = #{clm_company_server_gubun} , clm_inner_port = #{clm_inner_port} , clm_login_id = #{clm_login_id} , clm_login_pw = #{clm_login_pw} , clm_login_url = #{clm_login_url} , clm_outer_port = #{clm_outer_port} , clm_program_gubun = #{clm_program_gubun} , clm_server_inner_location = #{clm_server_inner_location} , clm_server_location = #{clm_server_location} , clm_comment = #{clm_comment} , clm_use_yn = #{clm_use_yn}
+		where clm_server_id = #{clm_server_id}
+	</update>
+	
+	<select id="FileList" resultType="HashMap" parameterType="HashMap">
+		select coalesce(clm_server_id,'') clm_server_id, coalesce(clm_file_location,'') clm_file_location, coalesce(clm_file_name,'') clm_file_name, coalesce(clm_file_size,'') clm_file_size, coalesce(clm_file_comment,'') clm_file_comment, coalesce(clm_use_yn,'') clm_use_yn, substring(cast(to_timestamp(clm_upload_datetime , 'YYYYMMDDHH24MISSSSS') as varchar),0,20) clm_upload_datetime, case when clm_file_location != '' then 'Y' else 'N' end clm_delete_action, case when clm_file_location != '' then 'Y' else 'N' end  clm_download_action
+		from tbl_server_file_info 
+		where clm_delete_yn = 'N'
+		and clm_server_id = #{clm_server_id}
+	</select>
+	
+	<insert id="FileUpload" parameterType="HashMap">
+		insert into tbl_server_file_info
+			(clm_server_id, clm_file_location, clm_file_name, clm_file_size, clm_file_comment, clm_use_yn, clm_upload_datetime)
+		values 
+			(#{clm_server_id}, #{clm_file_location}, #{clm_file_name}, #{clm_file_size}, #{clm_file_comment}, 'Y'::character varying, to_char(now(), 'YYYYMMDDHHMISSMS'::text)::character varying)
+	</insert>
+	
+	<select id="FileExistYn" resultType="String" parameterType="HashMap">
+		select case when count(*) > 0 then 'Y' else 'N' end  from tbl_server_file_info where clm_server_id = #{clm_server_id} and clm_file_name = #{clm_file_name} 
+	</select>
+	
+	<update id="FileDelete" parameterType="HashMap">
+		update tbl_server_file_info
+		  set clm_delete_yn = 'Y'
+		where clm_server_id = #{clm_server_id} and clm_file_name = #{clm_file_name} 
+	</update>
+	
+	<select id="LocationList" resultType="HashMap" parameterType="HashMap">
+		select coalesce(clm_server_location,'') clm_server_location from tbl_server_info where clm_delete_yn = 'N' group by clm_server_location 
+	</select>
+	
+	<update id="UpdateAlarmYn" parameterType="HashMap">
+		update tbl_error_code 
+		   set clm_alarm_yn = #{clm_alarm_yn}
+		 where clm_code_id = #{clm_code_id}
+	</update>
+	
+</mapper>
