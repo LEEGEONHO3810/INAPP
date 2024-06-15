@@ -112,14 +112,10 @@
 <template style="height: 100%;">
 	<v-layout style="width:100%;height: 100%;">
 		<div class="menu_div" >
-			<div @click="$router.push('/')" style="position:fixed; cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">INAPP</div>
+			<div @click="$router.push('/')" style="position:fixed; cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">APP</div>
 			<div style="height:40px;"></div>
-			<div><v-btn style="color:red !important;" width="220px" class="buttonMenu">URL 정리</v-btn></div>
 			<div width="220px" style="height:25px;"></div>
 			<div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('scr001002')" v-on:click="fnc_router_go('scr001002')">메모장</v-btn></div>
-			<div width="220px" style="height:25px;"></div>
-			<div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('scr001003')" v-on:click="fnc_router_go('scr001003')">에러코드</v-btn></div>
-			<div width="220px" style="height:25px;"></div>
 			<div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('scr001004')" v-on:click="fnc_router_go('scr001004')">캘린더</v-btn></div>
 			<div width="220px" style="height:25px;"></div>
 		</div>

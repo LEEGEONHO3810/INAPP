@@ -14,18 +14,16 @@ public class CalendarDto {
 		@JsonProperty("clm_check_sub_schedule_id")
 		private String clmCheckSubScheduleId;
 
-		@JsonProperty("clm_client_name")
-	    private String clmClientName;
-	    
+
+		@JsonProperty("clm_schedule_cycle")
+		private String clmScheduleCycle;
+
 	    @JsonProperty("clm_all_day_yn")
 	    private String clmAllDayYn;
 	    
 	    @JsonProperty("clm_check_emergency_yn")
 	    private String clmCheckEmergencyYn;
-	    
-	    @JsonProperty("clm_user_id")
-	    private String clmUserId;
-	    
+
 	    @JsonProperty("clm_start_date")
 	    private String clmStartDate;
 	    
@@ -47,14 +45,6 @@ public class CalendarDto {
 	    @JsonProperty("clm_color")
 	    private String color;
 
-		public String getClmClientName() {
-			return clmClientName;
-		}
-
-		public void setClmClientName(String clmClientName) {
-			this.clmClientName = clmClientName;
-		}
-
 		public String getClmAllDayYn() {
 			return clmAllDayYn;
 		}
@@ -73,14 +63,6 @@ public class CalendarDto {
 
 		public void setClmCheckEmergencyYn(String clmCheckEmergencyYn) {
 			this.clmCheckEmergencyYn = clmCheckEmergencyYn;
-		}
-
-		public String getClmUserId() {
-			return clmUserId;
-		}
-
-		public void setClmUserId(String clmUserId) {
-			this.clmUserId = clmUserId;
 		}
 
 		public String getClmStartDate() {
@@ -161,6 +143,15 @@ public class CalendarDto {
 
 		public void setClmCheckSubScheduleId(String clmCheckSubScheduleId) {
 			this.clmCheckSubScheduleId = clmCheckSubScheduleId;
+		}
+
+
+		public String getClmScheduleCycle() {
+			return clmScheduleCycle;
+		}
+
+		public void setClmScheduleCycle(String clmScheduleCycle) {
+			this.clmScheduleCycle = clmScheduleCycle;
 		}
 	    
 	    

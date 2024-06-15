@@ -11,20 +11,23 @@ var sessionOptions = {
 Vue.use(VueSession, sessionOptions)
 
 const Main = () => {
-	return import("./views/Main.vue")
+	return import("./views/SCR001/SCR001004.vue")
 }
 
-const SCR001001 = () => {
-	return import("./views/SCR001/SCR001001.vue")	
-}
+// const SCR001001 = () => {
+// 	return import("./views/SCR001/SCR001001.vue")
+// }
 const SCR001002 = () => {
 	return import("./views/SCR001/SCR001002.vue")	
 }
-const SCR001003 = () => {
-	return import("./views/SCR001/SCR001003.vue")	
-}
+// const SCR001003 = () => {
+// 	return import("./views/SCR001/SCR001003.vue")
+// }
 const SCR001004 = () => {
 	return import("./views/SCR001/SCR001004.vue")	
+}
+const SCR001005 = () => {
+  return import("./views/SCR001/SCR001005.vue")
 }
 const BarChart = () => {
   return import("./views/DBO001/BarChart.vue")
@@ -49,11 +52,11 @@ export const router = new Router({
       component: Main,
     },
 
-    {
-      path: '/SCR001001',
-      name: 'scr001001',
-      component: SCR001001
-    },
+    // {
+    //   path: '/SCR001001',
+    //   name: 'scr001001',
+    //   component: SCR001001
+    // },
 
     {
       path: '/SCR001002',
@@ -61,16 +64,21 @@ export const router = new Router({
       component: SCR001002
     },
 
-    {
-      path: '/SCR001003',
-      name: 'scr001003',
-      component: SCR001003
-    },
+    // {
+    //   path: '/SCR001003',
+    //   name: 'scr001003',
+    //   component: SCR001003
+    // },
 
     {
       path: '/SCR001004',
       name: 'scr001004',
       component: SCR001004
+    },
+    {
+      path: '/SCR001005',
+      name: 'scr001005',
+      component: SCR001005
     },
     {
       path: '/BarChart',

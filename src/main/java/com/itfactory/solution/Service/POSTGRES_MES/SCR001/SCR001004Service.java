@@ -229,22 +229,19 @@ public class SCR001004Service {
 		
 	}
 	
-	public void Update(HashMap<String, String> map, List<MultipartFile> files , String comment ,String cycle) throws Exception {
-	 
-		
-	    
-	    if(cycle.equals("none")){
-			SCR001004Mapper.Update(map);
-			SCR001004Mapper.SubUpdate(map);
-
-	    }else if(cycle.equals("none")) {
-	    	
-	    }
-	    
-	    if(files != null && !files.isEmpty()) {
+	public void Update(HashMap<String, String> map, List<MultipartFile> files , String comment , String option) throws Exception {
+		System.out.println(map);
+		System.out.println(option);
+		if(option.equals("optionAll")){
+			SCR001004Mapper.UpdateAll(map);
+		}else if(option.equals("optionToday")){
+			SCR001004Mapper.UpdateToday(map);
+		}else if(option.equals("optionNext")){
+			SCR001004Mapper.UpdateNext(map);
+		}
+		if(files != null && !files.isEmpty()) {
 	    	FileUpload(map,files,comment);
 	    }
-		SCR001004Mapper.Update(map);
 	}
 	
 	private void FileUpload(HashMap<String, String> map, List<MultipartFile> files , String comment) throws Exception{
@@ -297,9 +294,30 @@ public class SCR001004Service {
             i++;
         }
 	}
-	
+
+
+	// 이전 일정 --> 키값 보다 작은걸로 처리? ex)headid)0000001  sub_id) S0000003이 값보다 작거나 같은 애들
+	// 해당 일정 --> 해당 키값으로 조건 처리 ex)headid)0000001  sub_id) S0000003
+	// 이후 일정 --> 해당 키값보다 큰애들? ex)headid)0000001  sub_id) S0000003이 값보다 큰크거나 같은
 	public void Delete(HashMap<String, String> map) throws Exception {
-		SCR001004Mapper.Delete(map);
+		String option = map.get("option");
+		String clm_check_schedule_id = map.get("clm_check_schedule_id");
+
+		//일정 별 처리 방법
+		if(option.equals("optionAll")){
+			SCR001004Mapper.DeleteAll(map);
+		}else if(option.equals("optionToday")){
+			SCR001004Mapper.DeleteToday(map);
+		}else if(option.equals("optionNext")){
+			SCR001004Mapper.DeleteNext(map);
+		}
+
+		// 해당 일정의 모든 일정이 삭제되면 head도 삭제
+		int countY = SCR001004Mapper.SubListCountN(clm_check_schedule_id);
+
+		if(countY == 0){
+			SCR001004Mapper.Delete(map);
+		}
 	}
 
 	public void Complete(HashMap<String, String> map) throws Exception {
@@ -324,10 +342,10 @@ public class SCR001004Service {
 
 	public void FileDelete(HashMap<String, String> map) throws Exception {
 		SCR001004Mapper.FileDelete(map);
-		
 	}
 
 	public List<HashMap<String, String>> UserList(HashMap<String, String> map) throws Exception {
 		return SCR001004Mapper.UserList(map);
 	}
+
 }

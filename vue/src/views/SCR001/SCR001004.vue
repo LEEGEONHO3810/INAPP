@@ -13,10 +13,6 @@
       font-size: 25px;
    }
 
-   .v-card__text .v-text-field {
-      font-size: 25px;
-   }
-
    .modal_message_close {
       position: relative;
       left: 82%;
@@ -106,35 +102,20 @@
       text-align: center;
       background-color: #5d5d5d;
    }
-
-   .tableTH {
-      background-color: rgb(95, 155, 225);
-      text-align: center;
-      height: 20px;
-      color: white;
-      font-size: 20px;
-      font-weight: 550;
-      width: 25% !important;
-   }
-
-   .logo {
-      width: 220px;
-      height: auto;
-      padding: 10px;
-      background-color: white;
-      border: 1px solid black;
-   }
 </style>
 <template style="height: 100%;">
    <v-layout style="width:100%;">
-      <div class="menu_div" >
-			<div @click="$router.push('/')" style="cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">INAPP</div>
-         <div style="height:40px;"></div>
-         <div><v-btn width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('/')" v-on:click="fnc_router_go('/')">URL 정리</v-btn></div>
+     <div class="menu_div" style="position:fixed;">
+       <div style="display: flex;">
+         <div @click="$router.push('/')" style="cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">APP</div>
+         <div @click="$router.push('/')" style="cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">Login</div>
+       </div>
+<!--         <div style="height:40px;"></div>-->
+<!--         <div><v-btn width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('/')" v-on:click="fnc_router_go('/')">URL 정리</v-btn></div>-->
          <div width="220px" style="height:25px;"></div>
          <div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('SCR001002')" v-on:click="fnc_router_go('SCR001002')">메모장</v-btn></div>
-         <div width="220px" style="height:25px;"></div>
-         <div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('SCR001003')" v-on:click="fnc_router_go('SCR001003')">에러코드</v-btn></div>
+<!--         <div width="220px" style="height:25px;"></div>-->
+<!--         <div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('SCR001003')" v-on:click="fnc_router_go('SCR001003')">에러코드</v-btn></div>-->
          <div width="220px" style="height:25px;"></div>
          <div><v-btn style="color:red !important;" width="220px" class="buttonMenu">캘린더</v-btn></div>
          <div width="220px" style="height:25px;"></div>
@@ -142,7 +123,6 @@
       <div style="margin-bottom:20px; width: calc(100% - 220px);position: absolute;top:0; right: 0;">
          <v-row style="margin:18px 0 0 0; padding: 0 15px 0 15px !important;" justify="center">
             <v-col xl="12" md="12" sm="12" cols="12" align-self="center" style="padding-bottom:0px;margin-bottom:0px;">
-               <!--테이블 지우고 캘린더 붙이시면됩니다. SCR00104 백단 이용하세요.-->
                <template>
                   <v-layout wrap row>
                      <v-flex xs12 sm12 md12>
@@ -164,11 +144,12 @@
                                  ref="calendar"
                                  :events="events"
                                  :value="calendarDate"
+                                 :event-more="true"
                                  type="month"
                                  color="primary"
                                  @click:event="openEvent"
                                  @click:day="openDate"
-								 @event-more="moreEvent"
+                                 @click:more="onMoreEvent"
                               ></v-calendar>
                               </v-sheet>
                            </v-col>
@@ -182,11 +163,8 @@
                               <v-toolbar class="fontDefault" color="light-blue" dark>일정 관리</v-toolbar>
                               <v-card-text style="padding-bottom:0px; padding-top: 30px;">
                                  <v-row >
-                                    <v-col xl="4" md="4" sm="4" cols="4"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="업체명" v-model="clm_client_name" />
-                                    </v-col>
-                                    <v-col xl="4" md="4" sm="4" cols="4"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="담당자" v-model="clm_check_user_name" v-on:click="userModalOpen" readonly />
+                                    <v-col xl="8" md="8" sm="8" cols="8"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
+                                      <v-text-field label="할 일" v-model="clm_comment" />
                                     </v-col>
                                     <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
                                        <v-select 
@@ -195,7 +173,7 @@
                                           item-text="text"
                                           item-value="value"
                                           class="testselect"
-                                          open-on-clear 
+                                          open-on-clear
                                           label="반복">
                                        </v-select>
                                     </v-col>
@@ -212,9 +190,8 @@
                                        <div style="width: 43%; margin-right: 20px;">
                                           <v-text-field label="시작일자" type="date" v-model="clm_start_date" />
                                        </div>
-                                       <div style="width: 43%; margin-right: 20px; padding-top:17px;">
-                                          <div><span style="font-size:12px; position: absolute; top:37%; left:46%; font-weight:500">마감일자</span><input type="date" v-model="clm_end_date"  onfocus="this.showPicker()" style="width:100%; font-size:27px;border-bottom: 0.5px solid grey; outline: none; color:black" /></div>
-                                          <!-- <v-text-field label="마감일자" type="date" v-model="clm_end_date" /> -->
+                                       <div style="width: 43%; margin-right: 20px;">
+                                         <v-text-field label="종료일자" type="date" v-model="clm_end_date" />
                                        </div>
                                        <span style="font-weight: bold; margin:auto;">시간:</span><div style="margin:auto; ">
                                           <input type="checkbox" v-model="dateTodayYn" @change="checkDateResult">
@@ -230,32 +207,16 @@
                                           <v-text-field label="시작시간" type="time" v-model="clm_start_time" />
                                        </div>
                                        <div style="width: 20%; margin-right: 20px; padding-top:17px;">
-                                          <div><span style="font-size:12px; position: absolute; top:37%; left:46%; font-weight:500">마감일자</span><input type="date" v-model="clm_end_date"  onfocus="this.showPicker()" style="width:100%; font-size:27px;border-bottom: 0.5px solid grey; outline: none; color:black" /></div>
-                                          <!-- <v-text-field label="마감일자" type="date" v-model="clm_end_date" /> -->
+                                          <div><span style="font-size:12px; position: absolute; top:37%; left:46%; font-weight:500">종료일자</span><input type="date" v-model="clm_end_date"  onfocus="this.showPicker()" style="width:100%; font-size:27px;border-bottom: 0.5px solid grey; outline: none; color:black" /></div>
                                        </div>
                                        <div style="width: 20%; margin-right: 20px;">
-                                          <v-text-field label="마감시간" type="time" v-model="clm_end_time" />
+                                          <v-text-field label="종료시간" type="time" v-model="clm_end_time" />
                                        </div>
                                        <span style="font-weight: bold; margin:auto;">시간:</span><div style="margin:auto; ">
                                           <input type="checkbox" v-model="dateTodayYn" @change="checkDateResult">
                                        </div>
                                     </div>
                                  </template>
-                                 <v-row>
-                                    <v-col xl="10" md="10" sm="10" cols="10"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="업무 내용" v-model="clm_comment" />
-                                    </v-col>
-                                    <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-select 
-                                          v-model="clm_check_emergency_yn" 
-                                          :items="clm_check_emergency_items" 
-                                          item-text="text"
-                                          item-value="value"
-                                          open-on-clear 
-                                          label="긴급여부">
-                                       </v-select>
-                                    </v-col>
-                                 </v-row>
                                  <template v-if="this.clm_schedule_cycle == 'none'">
                                     <v-row>
                                        <v-col xl="12" md="12" sm="12" cols="12"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
@@ -281,30 +242,27 @@
                               <template v-if="this.clm_check_after_management == '' && this.clm_check_complete_value == ''">
                                  <v-card-text style="padding-bottom:0px; padding-top: 30px;">
                                  <v-row >
-                                    <v-col xl="4" md="4" sm="4" cols="4"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="업체명" v-model="clm_client_name"  />
-                                    </v-col>
-                                    <v-col xl="4" md="4" sm="4" cols="4"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="담당자" v-model="clm_check_user_name" v-on:click="userModalOpen" readonly />
-                                    </v-col>
-                                    <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-select 
-                                          v-model="clm_schedule_cycle" 
-                                          :items="clm_schedule_cycle_items" 
-                                          item-text="text"
-                                          item-value="value"
-                                          open-on-clear 
-                                          class="testselect"
-                                          label="반복">
-                                       </v-select>
-                                    </v-col>
-                                    <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style=" text-align: center; padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-swatches v-model="color"
-                                       :swatch-size="18"
-                                       :max-height = "40"
-                                       v-on="listeners" >
-                                       </v-swatches>
-                                    </v-col>
+                                   <v-col xl="8" md="8" sm="8" cols="8"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
+                                     <v-text-field label="할 일" v-model="clm_comment" />
+                                   </v-col>
+                                   <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
+                                     <v-select
+                                         v-model="clm_schedule_cycle"
+                                         :items="clm_schedule_cycle_items"
+                                         item-text="text"
+                                         item-value="value"
+                                         class="testselect"
+                                         open-on-clear
+                                         label="반복">
+                                     </v-select>
+                                   </v-col>
+                                   <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style=" text-align: center; padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
+                                     <v-swatches v-model="color"
+                                                 :swatch-size="18"
+                                                 :max-height = "40"
+                                                 v-on="listeners" >
+                                     </v-swatches>
+                                   </v-col>
                                  </v-row>
                                  <template v-if="this.clm_all_day_yn == 'N' && this.clm_check_schedule_id != '' ">
                                     <div style="display: flex;">
@@ -312,7 +270,7 @@
                                           <v-text-field label="시작일자" type="date" v-model="clm_start_date" />
                                        </div>
                                        <div style="width: 43%; margin-right: 20px;">
-                                          <v-text-field label="마감일자" type="date" v-model="clm_end_date" />
+                                          <v-text-field label="종료일자" type="date" v-model="clm_end_date" />
                                        </div>
                                        <span style="font-weight: bold; margin:auto;">시간:</span><div style="margin:auto; ">
                                           <input type="checkbox" v-model="dateTodayYn" @change="checkDateResult">
@@ -328,31 +286,16 @@
                                           <v-text-field label="시작시간" type="time" v-model="clm_start_time" />
                                        </div>
                                        <div style="width: 20%; margin-right: 20px;">
-                                          <v-text-field label="마감일자" type="date" v-model="clm_end_date" />
+                                          <v-text-field label="종료일자" type="date" v-model="clm_end_date" />
                                        </div>
                                        <div style="width: 20%; margin-right: 20px;">
-                                          <v-text-field label="마감시간" type="time" v-model="clm_end_time" />
+                                          <v-text-field label="종료시간" type="time" v-model="clm_end_time" />
                                        </div>
                                        <span style="font-weight: bold; margin:auto;">시간:</span><div style="margin:auto; ">
                                           <input type="checkbox" v-model="dateTodayYn" @change="checkDateResult">
                                        </div>
                                     </div>
                                  </template>
-                                 <v-row>
-                                    <v-col xl="10" md="10" sm="10" cols="10"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-text-field label="업무 내용" v-model="clm_comment" />
-                                    </v-col>
-                                    <v-col xl="2" md="2" sm="2" cols="2"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
-                                       <v-select 
-                                          v-model="clm_check_emergency_yn" 
-                                          :items="clm_check_emergency_items" 
-                                          item-text="text"
-                                          item-value="value"
-                                          open-on-clear 
-                                          label="긴급여부">
-                                       </v-select>
-                                    </v-col>
-                                 </v-row>
                                  <template v-if="this.clm_schedule_cycle == 'none'">
                                     <v-row>
                                        <v-col xl="12" md="12" sm="12" cols="12"  align-self="center"  style="padding-bottom:0px;margin-bottom:0px;padding-top:0px;">
@@ -379,17 +322,17 @@
                            <v-card>
                               <v-toolbar class="fontDefault" color="light-blue" dark> {{ this.clm_company_gubun_name }} 파일 업로드 </v-toolbar>
                               <v-card-text style="padding-top:25px;padding-bottom: 5px; zoom:100%">
-                                 <v-row>                     
+                                 <v-row>
                                     <v-col xl="12" md="12" sm="12" cols="12"  align-self="center" style="padding-bottom:0px;margin-bottom:0px;padding-top:20px;">
-                                       <v-file-input multiple accept="*" prepend-icon="mdi-folder-upload" counter show-size outlined small-chips v-model="UploadFile" ref="UploadFile" @change="CheckFileComment"></v-file-input>                              
+                                       <v-file-input multiple accept="*" prepend-icon="mdi-folder-upload" counter show-size outlined small-chips v-model="UploadFile" ref="UploadFile" @change="CheckFileComment"></v-file-input>
                                     </v-col>
                                  </v-row>
                                  <template v-if="this.UploadFile != ''">
                                     <v-row>
                                        <v-col xl="9" md="9" sm="9" cols="9"  align-self="center" style="padding-top:10px; padding-bottom:15px;margin-top:10px;">
                                           <span style="font-weight:800;font-size:20px;  margin-bottom:10px; padding-left:9px; padding-top:0px">파일 비고 입력</span>
-                                       </v-col>                     
-                                    </v-row>                  
+                                       </v-col>
+                                    </v-row>
                                     <v-row>
                                        <v-col xl="6" md="6" sm="6" cols="6" style="padding-bottom:0px;margin-bottom:0px;margin-top:-10px;"   v-for="(item, index) in UploadFile" v-bind:key="index">
                                           <div style="width:100%">
@@ -404,11 +347,11 @@
                                        </v-col>
                                        <v-col xl="2" md="2" sm="2" cols="2" align-self="center" style="padding-top:10px; padding-bottom:15px;margin-top:10px; text-align:end;">
                                           <span style="font-weight:800;font-size:20px;  margin-bottom:10px; padding-top:0px" @click="ClickDownLoad()">다운로드</span>
-                                       </v-col>                     
+                                       </v-col>
                                        <v-col xl="1" md="1" sm="1" cols="1" align-self="center" style="padding-top:10px; padding-bottom:15px;margin-top:10px; text-align:end;">
                                           <span style="font-weight:800;font-size:20px;  margin-bottom:10px; padding-top:0px" @click="FileDelete(selected_items)">삭제</span>
-                                       </v-col>                     
-                                    </v-row>      
+                                       </v-col>
+                                    </v-row>
                                  </template>
                                  <v-row>
                                     <v-col>
@@ -434,58 +377,73 @@
                            </v-card>
                         </v-dialog>
                      </v-row>
-
-                     <v-row justify="center">
-                        <v-dialog v-model="userModal" persistent max-width="650" @keydown.esc="userModal=false">
-                           <v-card>
-                           <v-toolbar class="fontDefault" color="light-blue" dark>작업자 정보
-                           </v-toolbar>
-                           <v-card-text style="padding-top:15px;">
-                              <v-row>
-                                 <v-col xl="10" md="10" sm="10" cols="10" align-self="center">
-                                    <v-text-field label="작업자명" v-model="m_s_user_name" @keypress.enter.prevent="getuserList" />
-                                 </v-col>
-                                 <v-col xl="2" md="2" sm="2" cols="2" align-self="center">
-                                    <v-btn width="100%" color="primary" v-on:click="getuserList">검색</v-btn>
-                                 </v-col>
-                              </v-row>
-                              <v-row style="padding-left:17px;">
-                                 <v-data-table no-data-text="조회된 작업자가 없습니다." loading-text="데이터 매핑중..."  @click:row="onClickUserRow" class="elevation-1 usertable" :itemsPerPage="5" :footer-props="{ 'items-per-page-options': [5, 10, -1],  'items-per-page-text': '페이지 당 행',  pageText: '총 {2} 항목 중 {0}-{1}' }" item-key="num" mobile-breakpoint="0" :headers="user_headers" :items="user_document" :loading="loading" style="width:95%;" >
-                                    <template slot="items" slot-scope="props">
-                                       <td>{{ props.item.num }}</td>
-                                       <td>{{ props.item.clm_user_id }}</td>
-                                       <td>{{ props.item.clm_user_name }}</td>
-                                    </template>
-                                 </v-data-table>
-                              </v-row>
-                           </v-card-text>
-                           <v-card-actions class="justify-end">
-                              <v-btn text style="font-size:20px;" @click="userModal = false">닫기</v-btn>
-                           </v-card-actions>
-                           </v-card>
-                        </v-dialog>
-                     </v-row>
                   </v-layout>
                </template>
+              <template>
+                <div>
+                  <Modal :visible="modalVisible" @close="modalVisible = false">
+                    <h3>할 일 목록{{ date }}</h3>
+                    <ul>
+                      <li v-for="event in events" :key="event.id" @click="modalClick(event)">{{ event.name }}</li>
+                    </ul>
+                  </Modal>
+                </div>
+              </template>
+
+              <template>
+                <div>
+                  <modal :visible="UpdateModal" @close="UpdateModal = false">
+                    <div style="display: flex; ">
+                      <div style="margin:auto; ">
+                        <input type="checkbox" :checked="optionToday" @change="selectOnly('today')">
+                      </div>
+                      <span style="font-weight: bold; margin:auto;">해당 일정</span>
+                    </div>
+                    <div style="display: flex;">
+                      <div style="margin:auto;">
+                        <input type="checkbox" :checked="optionNext" @change="selectOnly('next')">
+                      </div>
+                      <span style="font-weight: bold; margin:auto;">이후 일정까지</span>
+                    </div>
+                    <div style="display: flex;">
+                      <div style="margin:auto;">
+                        <input type="checkbox" :checked="optionAll" @change="selectOnly('all')">
+                      </div>
+                      <span style="font-weight: bold; margin:auto;">모든 일정</span>
+                    </div>
+                    <template v-if="this.updateType == 'del' ">
+                      <button style="margin-right: 10%" @click="DeleteRoot()">삭제</button>
+                    </template>
+                    <template v-else-if="this.updateType == 'update' ">
+                      <button style="margin-right: 10%" @click="UpdateRoot()">수정</button>
+                    </template>
+                  </modal>
+                </div>
+              </template>
+
             </v-col>
          </v-row>
         </div>
     </v-layout>
 </template>
 
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11">
+</script>
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import VSwatches from "vue-swatches";
 import "vue-swatches/dist/vue-swatches.css";
+import Modal from './Modal/Modal.vue';
+
 export default {
    name: "e-colorpicker",
-   components: { VSwatches },
-   
+   components: { VSwatches, Modal},
+
    data() {
       return {
-         options: {
+
+        options: {
             multiSort: false,
             sortBy: [],
             sortDesc: [],
@@ -504,7 +462,6 @@ export default {
          list_page:10,
          loading_yn:'N',
          /* 작업자 모달 */
-         userModal: false,
          user_document:[],
          user_headers: [
             { text: '순번', align: ' d-none', value: 'num', width: 60 },
@@ -518,16 +475,10 @@ export default {
             { text: '파일삭제', align: 'center', value: 'FileDelete', width: 250 },
             { text: 'clm_check_schedule_file_id', align: ' d-none', value: 'clm_check_schedule_file_id', width: 250 },
          ],
-         m_s_user_name:'',
-         
+
          /* 달력 모달 */
-         clm_user_id: '',
-         clm_client_name: '',
-         clm_check_emergency_yn: '',
          clm_schedule_cycle: 'none',
          clm_comment: '',
-         clm_user_id: '',
-         clm_check_user_name: '',
          clm_start_date: '',
          clm_start_time: '',
          clm_end_date: '',
@@ -545,7 +496,10 @@ export default {
          FileModal : false,
          FileName : '',
          formData: new FormData(),
-         
+
+        //moreEvent
+        clickedMore : false,
+
          clm_check_emergency_items: [
             { text: "Y", value: "Y", },
             { text: "N", value: "N", },
@@ -564,8 +518,9 @@ export default {
 
          viewModal: false,
 
-         events:[],
-         calendarDate: new Date().toISOString().substr(0, 10),
+        events: [],
+
+        calendarDate: new Date().toISOString().substr(0, 10),
 
          // 업로드, 다운
 
@@ -577,6 +532,18 @@ export default {
          selected_items:[],
          fileList_items:[],
          file_document:[],
+
+
+        // more-event
+        date: '', // 클릭된 날짜 정보를 여기에 저장
+        modalVisible: false, // 모달 표시 여부
+
+        // 수정 , delete modal
+        optionAll : '',
+        optionToday : '',
+        optionNext : '',
+        UpdateModal: false,
+        updateType :'',
 
 
       }
@@ -606,6 +573,7 @@ export default {
             this.getList()
 
          },
+
          deep: true,
       },
    },
@@ -681,11 +649,6 @@ export default {
          });
       },
 
-
-      updatePage(page){
-         this.list_page=Number(page.itemsPerPage);
-      }, 
-
       nextMonth() {
          if (this.$refs.calendar) {
             this.$refs.calendar.next();
@@ -708,19 +671,16 @@ export default {
 
       },
 
-      openDate({nativeEvent, date}){
-
+      openDate({date}){
+          if (this.clickedMore) {
+            // '더 보기' 버튼 클릭 후 날짜 핸들러 처리 방지
+            this.clickedMore = false;
+            return;
+          }
          if(this.viewModal != true) {
 
-            
-            this.clm_user_id='';
-            this.clm_user_name='';
-            this.clm_client_name='';
             this.clm_schedule_cycle='none';
-            this.clm_check_emergency_yn='';
             this.clm_comment='';
-            this.clm_user_id='';
-            this.clm_check_user_name='';
             this.color ='#1CA085';
             
             this.dateTodayYn = false;
@@ -738,30 +698,30 @@ export default {
             this.formData=new FormData();
             this.file_document = [];
             this.selected_items = [];
+
             
             this.regModal =true;
 
          }
       },
 
-      openEvent({nativeEvent, event}){
+      openEvent({event}){
+          if (this.clickedMore) {
+            this.clickedMore = false;
+            return;
+          }
          const vm = this
          this.loading = true
          this.save_yn='Y';
-         this.clm_client_name = event.clm_client_name;
-         this.clm_schedule_cycle= event.clm_check_interval;
-         this.clm_check_emergency_yn= event.clm_check_emergency_yn;
+         this.clm_schedule_cycle= event.clm_schedule_cycle;
          this.clm_comment= event.name;
-         this.clm_user_id= event.clm_user_id;
-         this.clm_check_user_name= event.clm_user_name;
          this.clm_check_schedule_id = event.clm_check_schedule_id;
          this.clm_check_sub_schedule_id = event.clm_check_sub_schedule_id;
          this.clm_check_after_management = event.clm_check_after_management;
          this.clm_check_complete_value = event.clm_check_complete_value;
          this.clm_all_day_yn = event.clm_all_day_yn;
          this.color = event.color;
-         this.UploadFile = null; 
-
+         this.UploadFile = null;
          if(this.clm_all_day_yn == 'Y'){
 
             this.dateTodayYn = true;
@@ -817,52 +777,14 @@ export default {
          this.selected_items = [];
       },
 
-
-      onClickUserRow(data) {
-         this.clm_user_id = data.clm_user_id;
-         this.clm_check_user_name = data.clm_user_name;
-         this.userModal = false;
-      },
-
-      userModalOpen() {
-         this.clm_check_user = '';
-         this.m_s_user_name='';
-
-         this.getuserList();
-         this.userModal = true;
-      },
-
-      getuserList(){
-         let items = axios.get('/back/SCR001/UserList',{
-            params: {
-               search: this.m_s_user_name,
-               clm_user: this.$session.get('user_id'),
-               }
-            }).then(
-            response => {
-               items = response.data
-               setTimeout(() => {
-                  this.user_document = items
-               }, 500)
-            },
-         )
-      },
-
       Reg() {
-
-         if(this.clm_client_name == '' || this.clm_client_name == 'undefined') {
-            Swal.fire({
-               title: '업체명을 입력해주세요.',
-               icon: 'error'
-            });
-            return;
-         }else if(this.clm_user_id == '' || this.clm_user_id == 'undefined') {
-            Swal.fire({
-               title: '담당자를 선택해주세요.',
-               icon: 'error'
-            });
-            return;
-         }else if(this.clm_start_date == '' || this.clm_start_date == 'undefined') {
+        if(this.clm_comment == '' || this.clm_comment == 'undefined') {
+          Swal.fire({
+            title: '할 일을 입력해주세요.',
+            icon: 'error'
+          });
+          return;
+        } else if(this.clm_start_date == '' || this.clm_start_date == 'undefined') {
             Swal.fire({
                title: '시작 일자를 선택해 주세요.',
                icon: 'error'
@@ -870,13 +792,7 @@ export default {
             return;
          }else if(this.clm_end_date == '' || this.clm_end_date == 'undefined') {
             Swal.fire({
-               title: '마감 일자를 선택해 주세요.',
-               icon: 'error'
-            });
-            return;
-         } else if(this.clm_check_emergency_yn == '' || this.clm_check_emergency_yn == 'undefined') {
-            Swal.fire({
-               title: '긴급 여부를 선택해 주세요.',
+               title: '종료 일자를 선택해 주세요.',
                icon: 'error'
             });
             return;
@@ -885,13 +801,13 @@ export default {
          if(this.checkYnResult == 'Y'){
             if(this.clm_start_time == '' || this.clm_start_time == 'undefined') {
                Swal.fire({
-                  title: '점검 시간을 선택해 주세요.',
+                  title: '시작 시간을 선택해 주세요.',
                   icon: 'error'
                });
                return;
             }else if(this.clm_end_time == '' || this.clm_end_time == 'undefined'){
                Swal.fire({
-                  title: '마감 시간을 선택해 주세요.',
+                  title: '종료 시간을 선택해 주세요.',
                   icon: 'error'
                });
             }
@@ -916,13 +832,9 @@ export default {
          }
 
          // this.clm_schedule_cycle 에 따라 특정 날짜마다 반복? 가능하면 따로 들어가자
-
          const otherData = {
 
-            clm_user_id: this.clm_user_id,
-            clm_client_name: this.clm_client_name,
             clm_all_day_yn: this.clm_all_day_yn,
-            clm_check_emergency_yn: this.clm_check_emergency_yn,
             clm_start_date: this.clm_start_date,
             clm_start_time: this.clm_start_time,
             clm_end_date: this.clm_end_date,
@@ -971,138 +883,217 @@ export default {
 
       Update() {
 
-         if(this.clm_client_name == '' || this.clm_client_name == 'undefined') {
-            Swal.fire({
-               title: '업체명을 입력해주세요.',
-               icon: 'error'
-            });
-            return;
-         }else if(this.clm_user_id == '' || this.clm_user_id == 'undefined') {
-            Swal.fire({
-               title: '담당자를 선택해주세요.',
-               icon: 'error'
-            });
-            return;
-         }else if(this.clm_start_date == '' || this.clm_start_date == 'undefined') {
-            Swal.fire({
-               title: '시작 일자를 선택해 주세요.',
-               icon: 'error'
-            });
-            return;
-         }else if(this.clm_end_date == '' || this.clm_end_date == 'undefined') {
-            Swal.fire({
-               title: '마감 일자를 선택해 주세요.',
-               icon: 'error'
-            });
-            return;
-         } else if(this.clm_check_emergency_yn == '' || this.clm_check_emergency_yn == 'undefined') {
-            Swal.fire({
-               title: '긴급 여부를 선택해 주세요.',
-               icon: 'error'
-            });
-            return;
+        this.optionAll = '';
+        this.optionToday = '';
+        this.optionNext = '';
+        this.updateType = 'update';
+
+        if(this.clm_schedule_cycle == 'none'){
+
+          this.UpdateModal = false;
+          this.UpdateRoot();
+        }else{
+          this.UpdateModal = true;
+        }
+
+      },
+
+     UpdateRoot() {
+       let option = '';
+
+       if (this.optionAll) {
+         option = "optionAll";
+       } else if (this.optionToday) {
+         option = "optionToday";
+       } else if (this.optionNext) {
+         option = "optionNext";
+       }
+       console.log(option);
+
+       if (this.clm_comment === '' || this.clm_comment === 'undefined') {
+         Swal.fire({
+           title: '할 일을 입력해 주세요.',
+           icon: 'error'
+         });
+         return;
+       } else if (this.clm_start_date === '' || this.clm_start_date === 'undefined') {
+         Swal.fire({
+           title: '시작 일자를 선택해 주세요.',
+           icon: 'error'
+         });
+         return;
+       } else if (this.clm_end_date === '' || this.clm_end_date === 'undefined') {
+         Swal.fire({
+           title: '종료 일자를 선택해 주세요.',
+           icon: 'error'
+         });
+         return;
+       }
+
+       if (option === '') {
+         Swal.fire({
+           title: '수정 옵션을 선택해주세요',
+           icon: 'error'
+         });
+         return;
+       }
+
+       this.formData = new FormData(); // 매번 새로운 FormData 객체를 생성합니다.
+
+       if (!this.UploadFile || this.UploadFile.length === 0) {
+         // 빈 파일 파라미터 추가
+         this.formData.append('files', '');
+         this.formData.append("comment", '');
+       } else {
+         // 파일이 있을 경우 파일 추가
+         for (let file of this.UploadFile) {
+           this.formData.append('files', file);
          }
+       }
 
-         console.log(this.UploadFile);
-         if (!this.UploadFile || this.UploadFile.length === 0) {
-            // 빈 파일 파라미터 추가
-            this.formData.append('files', '');
-            this.formData.append("comment", "");
+       const otherData = {
+         clm_check_schedule_id: this.clm_check_schedule_id,
+         clm_check_sub_schedule_id: this.clm_check_sub_schedule_id,
+         clm_check_schedule_file_id: this.clm_check_schedule_file_id,
+         clm_schedule_cycle: this.clm_schedule_cycle,
+         clm_all_day_yn: this.clm_all_day_yn,
+         clm_start_date: this.clm_start_date,
+         clm_start_time: this.clm_start_time,
+         clm_end_date: this.clm_end_date,
+         clm_end_time: this.clm_end_time,
+         clm_color: this.color,
+         clm_comment: this.clm_comment,
+         clm_user: this.$session.get('user_id')
+       };
 
+       this.formData.append('data', JSON.stringify(otherData));
+
+       axios.post('/back/SCR001/Update', this.formData, {
+         headers: {
+           'Content-Type': 'multipart/form-data'
+         },
+         params: {
+           "option": option
          }
-         const otherData = {
-
-            clm_check_schedule_id: this.clm_check_schedule_id,
-            clm_check_sub_schedule_id: this.clm_check_sub_schedule_id,
-            clm_check_schedule_file_id: this.clm_check_schedule_file_id,
-            clm_client_name: this.clm_client_name,
-            clm_all_day_yn: this.clm_all_day_yn,
-            clm_check_emergency_yn: this.clm_check_emergency_yn,
-            clm_user_id: this.clm_user_id,
-            clm_start_date: this.clm_start_date,
-            clm_start_time: this.clm_start_time,
-            clm_end_date: this.clm_end_date,
-            clm_end_time: this.clm_end_time,
-            clm_color: this.color,
-            clm_comment: this.clm_comment,
-            clm_user:this.$session.get('user_id')
-
-         };
-
-         if(this.clm_schedule_cycle  != '' ||  this.clm_schedule_cycle  == 'none'){
-            this.formData.append('cycle', this.clm_schedule_cycle);
-         }
-
-         this.formData.append('data', JSON.stringify(otherData));
-
-
-         axios.post('/back/SCR001/Update', this.formData, {
-            headers: {
-               'Content-Type': 'multipart/form-data'
-            }
-         })
+       })
          .then(response => {
-            if (response.status == '200') {
-                  this.loading_yn='N';
-                  Swal.fire({
-                     title: '정상적으로 수정되었습니다.',
-                     icon: 'success'
-                  });
-                  this.viewModal=false;
-                  this.getList();
-            }else{
-               this.loading_yn='N';
-               Swal.fire({
-                  title: '오류가 발생하였습니다.',
-                  icon: 'error'
-               });
-            }
+           this.loading_yn = 'N';
+           if (response.status === 200) {
+             Swal.fire({
+               title: '정상적으로 수정되었습니다.',
+               icon: 'success'
+             });
+             this.viewModal = false;
+             this.UpdateModal = false;
+             this.getList();
+           } else {
+             Swal.fire({
+               title: '오류가 발생하였습니다.',
+               icon: 'error'
+             });
+           }
          })
          .catch(error => {
-            console.log(error)
-         })
+           this.loading_yn = 'N';
+           this.UpdateModal = false;
+           console.log(error);
+           Swal.fire({
+             title: '오류가 발생하였습니다.',
+             icon: 'error'
+           });
+           this.getList();
+         });
+     },
+
+     Delete() {
+        // 삭제
+        this.optionAll = '';
+        this.optionToday = '';
+        this.optionNext = '';
+        this.updateType = 'del';
+        if(this.clm_schedule_cycle == 'none'){
+          this.UpdateModal = false;
+          this.DeleteRoot();
+        }else{
+          this.UpdateModal = true;
+        }
+
       },
-      Delete() {
+
+     DeleteRoot(){
+       let option = '';
+
+        if(this.optionAll){
+          option ="optionAll";
+        }else if(this.optionToday){
+          option = "optionToday";
+        }else if(this.optionNext){
+          option = "optionNext";
+        }
+
+       if(option == ''){
          Swal.fire({
-               title: '점검 일정을 삭제하시겠습니까?',
-               text:  '',
-               icon: 'question',
-               showCancelButton: true,
-               allowOutsideClick: false,
-               confirmButtonColor: '#3085d6',
-               cancelButtonColor: '#d33',
-               confirmButtonText: '예',
-               cancelButtonText: '아니요'
-            }).then((result) => {
-               if (result.isConfirmed) {
-                  axios.post('/back/SCR001/Delete', null, { params: {
-                     clm_check_schedule_id: this.clm_check_schedule_id,
-                     clm_user: this.$session.get('user_id'),
-                  }})
-                  .then(response => {
-                     if(response.status == '200') {
-                        Swal.fire({
-                           title:'정상적으로 삭제되었습니다.',
-                           icon: 'success'
-                        });
-                        this.loading_yn = 'N';
-                        this.viewModal=false;
-                        this.getList();
-                     }else{
-                        Swal.fire({
-                           title:'오류가 발생하였습니다.',
-                           icon: 'error'
-                        });
-                        this.loading_yn='N';
-                        this.viewModal=false;
-                        this.getList();
-                     }
-                  })
-                  .catch(error => {
-                     console.log(error)
-                  })
-               }
-            })
+           title: '삭제 할 옵션을 선택해주세요',
+           icon: 'error'
+         });
+         return;
+       }
+       Swal.fire({
+
+         title: '일정을 삭제하시겠습니까?',
+         text:  '',
+         icon: 'question',
+         showCancelButton: true,
+         allowOutsideClick: false,
+         confirmButtonColor: '#3085d6',
+         cancelButtonColor: '#d33',
+         confirmButtonText: '예',
+         cancelButtonText: '아니요'
+
+       }).then((result) => {
+         if (result.isConfirmed) {
+           axios.post('/back/SCR001/Delete', null, { params: {
+               option : option,
+               clm_start_date : this.clm_start_date,
+               clm_check_schedule_id: this.clm_check_schedule_id,
+               clm_check_sub_schedule_id: this.clm_check_sub_schedule_id,
+               clm_user: this.$session.get('user_id'),
+             }})
+               .then(response => {
+                 if(response.status == '200') {
+                   Swal.fire({
+                     title:'정상적으로 삭제되었습니다.',
+                     icon: 'success'
+                   });
+                   this.loading_yn = 'N';
+                   this.viewModal=false;
+                   this.UpdateModal=false;
+                   this.getList();
+                 }else{
+                   Swal.fire({
+                     title:'오류가 발생하였습니다.',
+                     icon: 'error'
+                   });
+                   this.loading_yn='N';
+                   this.viewModal=false;
+                   this.UpdateModal=false;
+                   this.getList();
+                 }
+               })
+               .catch(error => {
+                 console.log(error)
+               })
+          }
+       })
+     },
+     selectOnly(option) {
+
+         this.optionAll = (option === 'all');
+         this.optionToday = (option === 'today');
+         this.optionNext = (option === 'next');
+     },
+
+      deleteItem(){
       },
       getList() {
          const vm = this
@@ -1141,6 +1132,7 @@ export default {
                     }
                }).then(
                response => {
+
                   // items = response.data
                   setTimeout(() => {
                      this.events = response.data; // Apply 'red' color to each event
@@ -1165,26 +1157,24 @@ export default {
          }
       },
 
-      //color 고르기
       updateColorValue(event) {
-         this.$emit("input", event);
 
+         this.$emit("input", event);
 
       },
 
       fileUpDown(){
          this.FileModal = true;
-         
+
       },
 
       handleFileUpload() {
 
          if (!this.UploadFile) return;
-         
+
          for (let i = 0; i < this.UploadFile.length; i++) {
             this.formData.append('files', this.UploadFile[i]);
 
-            // comment는 필수값이 x
             if (typeof this.UploadFile[i].clm_file_comment !== "undefined" && this.UploadFile[i].clm_file_comment !== '') {
                this.formData.append("comment", this.UploadFile[i].clm_file_comment);
 
@@ -1194,7 +1184,7 @@ export default {
             }
          }
          this.FileModal = false;
-         
+
       },
 
       CheckFileComment(){
@@ -1209,8 +1199,6 @@ export default {
             }
          }
       },
-
-
       async FileDownLoad(item) {
 
          try {
@@ -1227,34 +1215,12 @@ export default {
             link.setAttribute("download", item.clm_file_name);
             document.body.appendChild(link);
             link.click();
+
          } catch (error) {
             console.error(error);
          }
 
-      },   
-      
-      async FileDownLoad(item) {
-
-         try {
-            const response = await axios.get("/back/SCR001/FileDownLoad", {params: {
-
-               clm_file_location : item.clm_file_location,
-               clm_file_name :  item.clm_file_name,
-
-            }});
-
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", item.clm_file_name);
-            document.body.appendChild(link);
-            link.click();
-            
-         } catch (error) {
-            console.error(error);
-         }
-
-      },   
+      },
 
       // 크롬은 기본적으로 여러파일 자동 다운로드 막혀있긴함 일단은 만듬
       async ClickDownLoad() {
@@ -1271,7 +1237,7 @@ export default {
                         clm_file_location: item.clm_file_location,
                         clm_file_name: item.clm_file_name,
                      },
-                     responseType: 'blob' 
+                     responseType: 'blob'
                   });
                   resolve(response.data);
                } catch (error) {
@@ -1300,8 +1266,6 @@ export default {
             console.error(error);
          }
       },
-
-
 
       FileDelete(item) {
          const leng = this.selected_items.length;
@@ -1335,7 +1299,7 @@ export default {
                               });
                               this.FileModal = false;
                               this.loadFileList();
-                              
+
                            }else{
                               this.loading_yn='N';
                            }
@@ -1348,7 +1312,7 @@ export default {
                   }else{
                      this.loading_yn='N';
                   }
-               })   
+               })
          }else{
             Swal.fire({
                title: item.clm_file_name + ' 파일을\n 정말 삭제하시겠습니까?',
@@ -1389,13 +1353,103 @@ export default {
             })
          }
       },
-
+      //
       onClickFileRow(event,data) {
-
+        console(data);
       },
-	  moreEvent(event){
-		console.log(event);
-	  }
+
+     async onMoreEvent({ date}) {
+       this.clickedMore = true;
+       if (date) {
+         this.date = date; // 날짜 값을 설정합니다.
+         await this.fetchEvents(date,this.events); // 날짜에 해당하는 이벤트를 가져오는 함수
+         this.modalVisible = true; // 모달을 표시합니다.
+
+       } else {
+         console.error('Invalid date:', date);
+       }
+     },
+     async fetchEvents(date) {
+       this.loading = true;
+       this.save_yn = 'Y';
+
+       const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+       let TsortBy = sortBy.length > 0 ? sortBy[0] : '';
+       let TsortDesc = sortBy.length > 0 && sortDesc[0] ? 'desc' : 'asc';
+
+       try {
+
+         const response = await axios.get('/back/SCR001/ScheduleList', {
+           params: {
+             targetDate: date,
+             sortBy: TsortBy,
+             sortDesc: TsortDesc,
+             search: this.schVal,
+             search2: this.schVal2,
+             page: page,
+             clm_user: this.$session.get('user_id'),
+             PerPage: itemsPerPage
+           }
+         });
+         this.events = response.data;
+       } catch (error) {
+         console.error(error);
+       } finally {
+         this.save_yn = 'N';
+         this.loading = false;
+       }
+     },
+     modalClick(event){
+       // 모달 닫기
+       this.modalVisible = false;
+
+       if (this.clickedMore) {
+         this.clickedMore = false;
+         return;
+       }
+       const vm = this
+       this.loading = true
+       this.save_yn='Y';
+       this.clm_schedule_cycle= event.clm_schedule_cycle;
+       this.clm_comment= event.name;
+       this.clm_check_schedule_id = event.clm_check_schedule_id;
+       this.clm_check_sub_schedule_id = event.clm_check_sub_schedule_id;
+       this.clm_check_after_management = event.clm_check_after_management;
+       this.clm_check_complete_value = event.clm_check_complete_value;
+       this.clm_all_day_yn = event.clm_all_day_yn;
+       this.color = event.color;
+       this.UploadFile = null;
+
+       if(this.clm_all_day_yn == 'Y'){
+
+         this.dateTodayYn = true;
+
+       }else if(this.clm_all_day_yn == 'N'){
+
+         this.dateTodayYn = false;
+       }
+
+       const start = event.start.split(' ');
+
+       this.clm_start_date = start[0]; // 날짜
+       this.clm_start_time = start[1]; // 시간
+
+       const end = event.end.split(' ');
+
+       this.clm_end_date = end[0];   // 날짜
+       this.clm_end_time = end[1];   // 시간
+
+
+       this.loadFileList().then(() => {
+         this.selected_items = [];
+         this.viewModal = true;
+         this.loading = false;
+       }).catch(error => {
+         this.loading = false;
+       });
+
+       this.viewModal =true;
+     },
    },
 }
 </script>

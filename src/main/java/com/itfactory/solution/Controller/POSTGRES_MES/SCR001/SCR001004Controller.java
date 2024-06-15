@@ -52,19 +52,23 @@ public class SCR001004Controller {
 	@GetMapping(path = "/ScheduleList")
 	public List<HashMap<String, String>> ScheduleList(HttpServletRequest req) throws Exception {
 		HashMap<String, String> map = new HashMap<String, String>();
+		String targetDate = (req.getParameter("targetDate") == null? "": req.getParameter("targetDate"));
+
 		map.put("search", req.getParameter("search"));
 		map.put("search2", req.getParameter("search2"));
 		map.put("sortBy", req.getParameter("sortBy"));
 		map.put("sortDesc", req.getParameter("sortDesc"));
 		map.put("page", req.getParameter("page"));
 		map.put("PerPage", req.getParameter("PerPage"));
-		return SCR001004Service.ScheduleList(map);
-	}
-	
+		map.put("targetDate", targetDate);
 
+		return SCR001004Service.ScheduleList(map);
+
+	}
 	@GetMapping(path = "/UserList")
 	public List<HashMap<String, String>> UserList(HttpServletRequest req) throws Exception {
 		HashMap<String, String> map = new HashMap<String, String>();
+
 		map.put("search", req.getParameter("search"));
 		map.put("clm_user", req.getParameter("clm_user"));
 		return SCR001004Service.UserList(map);
@@ -116,14 +120,10 @@ public class SCR001004Controller {
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    // 받아온 Json Data로 변환
 	    CalendarDto CDto = objectMapper.readValue(data, CalendarDto.class);
-	  
-	    
-    	map.put("clm_client_name",  CDto.getClmClientName());
-    	map.put("clm_user_id", CDto.getClmUserId());
+
     	map.put("clm_user", CDto.getClmUser());
-    	map.put("clm_check_interval", cycle);
+    	map.put("clm_schedule_cycle", cycle);
     	map.put("clm_all_day_yn", CDto.getClmAllDayYn());
-    	map.put("clm_check_emergency_yn", CDto.getClmCheckEmergencyYn());
     	map.put("clm_start_date", CDto.getClmStartDate());
     	map.put("clm_start_time", CDto.getClmStartTime());
     	map.put("clm_end_date", CDto.getClmEndDate());
@@ -143,42 +143,46 @@ public class SCR001004Controller {
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files,
 	        @RequestParam("data") String data,
 	        @RequestParam("comment") String comment,
-	        @RequestParam("cycle") String cycle) throws Exception {
-	
-	    
-		if(comment == null) {
-			comment = "";
+			HttpServletRequest req) throws Exception {
+		try {
+
+			String option = (req.getParameter("option") == null ? "" : req.getParameter("option"));
+
+			if (comment == null) {
+				comment = "";
+			}
+
+			// 파일이 선택되지 않은 경우 빈 리스트
+			if (files == null) {
+				files = new ArrayList<>();
+			}
+
+			HashMap<String, String> map = new HashMap<String, String>();
+
+			ObjectMapper objectMapper = new ObjectMapper();
+
+			// 받아온 Json Data로 변환
+			CalendarDto CDto = objectMapper.readValue(data, CalendarDto.class);
+
+			map.put("clm_check_schedule_id", CDto.getClmCheckScheduleId());
+			map.put("clm_check_sub_schedule_id", CDto.getClmCheckSubScheduleId());
+			map.put("clm_check_schedule_file_id", CDto.getClmCheckScheduleFileId());
+			map.put("clm_schedule_cycle", CDto.getClmScheduleCycle());
+			map.put("clm_all_day_yn", CDto.getClmAllDayYn());
+			map.put("clm_start_date", CDto.getClmStartDate());
+			map.put("clm_start_time", CDto.getClmStartTime());
+			map.put("clm_end_date", CDto.getClmEndDate());
+			map.put("clm_end_time", CDto.getClmEndTime());
+			map.put("clm_comment", CDto.getClmComment());
+			map.put("clm_color", CDto.getColor());
+			map.put("clm_user", CDto.getClmUser());
+
+			SCR001004Service.Update(map, files, comment, option);
+		}catch (Exception e) {
+			// 예외 로그를 남기고, 필요시 클라이언트에 에러 응답을 보냅니다.
+			e.printStackTrace();
+			throw new Exception("Update 과정에서 오류가 발생했습니다.");
 		}
-		
-	    // 파일이 선택되지 않은 경우 빈 리스트
-	    if (files == null) {
-	        files = new ArrayList<>();
-	    }
-
-	    HashMap<String, String> map = new HashMap<String, String>();
-
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    
-	    // 받아온 Json Data로 변환
-	    CalendarDto CDto = objectMapper.readValue(data, CalendarDto.class);
-	    
-	    map.put("clm_check_schedule_id",  CDto.getClmCheckScheduleId());
-	    map.put("clm_check_sub_schedule_id",  CDto.getClmCheckSubScheduleId());
-	    map.put("clm_check_schedule_file_id",  CDto.getClmCheckScheduleFileId());
-	    map.put("clm_client_name",  CDto.getClmClientName());
-	    map.put("clm_all_day_yn", CDto.getClmAllDayYn());
-	    map.put("clm_check_emergency_yn", CDto.getClmCheckEmergencyYn());
-	    map.put("clm_user_id", CDto.getClmUserId());
-	    map.put("clm_start_date", CDto.getClmStartDate());
-	    map.put("clm_start_time", CDto.getClmStartTime());
-	    map.put("clm_end_date", CDto.getClmEndDate());
-	    map.put("clm_end_time", CDto.getClmEndTime());
-	    map.put("clm_comment", CDto.getClmComment());
-	    map.put("clm_color", CDto.getColor());
-	    map.put("clm_user", CDto.getClmUser());
-	    map.put("clm_check_interval", cycle);
-	    
-	    SCR001004Service.Update(map, files, comment , cycle);
 	}
 	
 	@GetMapping(path = "/FileDownLoad")
@@ -218,13 +222,21 @@ public class SCR001004Controller {
 	    }
 	}
 
-	
-	
 	@PostMapping(path = "/Delete")
 	public void Delete(HttpServletRequest req) throws Exception {
+		String clm_check_schedule_id = (req.getParameter("clm_check_schedule_id") == null? "": req.getParameter("clm_check_schedule_id"));
+		String clm_check_sub_schedule_id = (req.getParameter("clm_check_sub_schedule_id") == null? "": req.getParameter("clm_check_sub_schedule_id"));
+		String option = (req.getParameter("option") == null? "": req.getParameter("option"));
+		String clm_start_date = (req.getParameter("clm_start_date") == null? "": req.getParameter("clm_start_date"));
+
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("clm_check_schedule_id",  req.getParameter("clm_check_schedule_id"));
+
+		map.put("option",  option);
+		map.put("clm_check_schedule_id",  clm_check_schedule_id);
+		map.put("clm_check_sub_schedule_id",  clm_check_sub_schedule_id);
+		map.put("clm_start_date", clm_start_date);
 		map.put("clm_user", req.getParameter("clm_user"));
+
 		SCR001004Service.Delete(map);
 	}
 	

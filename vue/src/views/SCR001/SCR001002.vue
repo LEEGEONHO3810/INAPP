@@ -103,13 +103,9 @@
 <template style="height: 100%;">
 	<v-layout style="width:100%;height: 100%;">
 		<div class="menu_div" style="position:fixed;">
-			<div @click="$router.push('/')" style="cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">INAPP</div>
-			<div style="height:40px;"></div>
-			<div><v-btn width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('/')" v-on:click="fnc_router_go('/')">URL 정리</v-btn></div>
+			<div @click="$router.push('/')" style="cursor:pointer;width:220px; font-size:26px; font-weight:bold;color:white;" class="fontDefault">APP</div>
 			<div width="220px" style="height:25px;"></div>
 			<div><v-btn style="color:red !important;" width="220px" class="buttonMenu">메모장</v-btn></div>
-			<div width="220px" style="height:25px;"></div>
-			<div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('scr001003')" v-on:click="fnc_router_go('scr001003')">에러코드</v-btn></div>
 			<div width="220px" style="height:25px;"></div>
 			<div><v-btn style="" width="220px" color="gray" class="buttonMenu" @touchstart.prevent="fnc_router_go('scr001004')" v-on:click="fnc_router_go('scr001004')">캘린더</v-btn></div>
 			<div width="220px" style="height:25px;"></div>
@@ -130,7 +126,7 @@
 				<v-col xl="3" md="3" sm="3" cols="3" v-for="(accountItem, index) in accountItems" :key="index">
 					<div  style="width:100%; border: 2px solid; border-bottom: none; background-color: #0a80e3; display: flex;">
 						<div style="width: 8%;">
-							{{index}}
+							{{index+1}}
 						</div>
 						<div style="width: 55%;" >
 							<input style="align-self: center; width: 100%;padding-left:5px;" maxlength="15" v-model="accountItem.clm_title" />

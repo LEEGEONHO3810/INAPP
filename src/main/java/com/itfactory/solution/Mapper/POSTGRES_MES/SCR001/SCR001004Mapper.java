@@ -14,6 +14,7 @@ public interface SCR001004Mapper {
 	public int Reg(HashMap<String, String> map) throws Exception;
 	public void Update(HashMap<String, String> map) throws Exception;
 	public void Delete(HashMap<String, String> map) throws Exception;
+	public void DeleteToday(HashMap<String, String> map) throws Exception;
 	public void SaveSubCheck(HashMap<String, String> map) throws Exception;
 	public void Complete(HashMap<String, String> map) throws Exception;
 	public void FileUpload(HashMap<String, String> fileMap) throws Exception;
@@ -25,4 +26,16 @@ public interface SCR001004Mapper {
 	public List<HashMap<String, String>> UserList(HashMap<String, String> map) throws Exception;
 	public void SubReg(HashMap<String, String> subMap) throws Exception;
 	public void SubUpdate(HashMap<String, String> map) throws Exception;
+
+	void DeleteAll(HashMap<String, String> map) throws Exception;
+
+	void DeleteNext(HashMap<String, String> map) throws Exception;
+
+	int SubListCountN(String clmCheckScheduleId) throws Exception;
+
+	void UpdateAll(HashMap<String, String> map) throws Exception;
+
+	void UpdateNext(HashMap<String, String> map) throws Exception;
+
+	void UpdateToday(HashMap<String, String> map) throws Exception;
 }

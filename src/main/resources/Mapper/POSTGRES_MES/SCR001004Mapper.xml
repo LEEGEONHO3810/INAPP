@@ -5,25 +5,27 @@
 <mapper namespace="com.itfactory.solution.Mapper.POSTGRES_MES.SCR001.SCR001004Mapper">
 
 	<select id="ScheduleList" resultType="HashMap" parameterType="HashMap">
-	
+
 		select coalesce(x.clm_check_schedule_id,'') clm_check_schedule_id, coalesce(clm_all_day_yn, '') clm_all_day_yn
-				, coalesce(x.clm_check_sub_schedule_id ,'') clm_check_sub_schedule_id , coalesce(x.clm_check_emergency_yn,'') clm_check_emergency_yn
-				, coalesce(x.clm_start_date,'') clm_start_date, coalesce(x.clm_start_time,'') clm_start_time 
-				, coalesce(x.clm_end_date,'') clm_end_date , coalesce(x.clm_end_time,'') clm_end_time , coalesce(x.clm_schedule_color,'') as color
-				, coalesce(x.clm_start_date || ' ' || x.clm_start_time ,'') as start , coalesce(x.clm_end_date || ' ' || x.clm_end_time ,'') as end
+			 , coalesce(x.clm_check_sub_schedule_id ,'') clm_check_sub_schedule_id , coalesce(x.clm_check_emergency_yn,'') clm_check_emergency_yn
+			 , coalesce(x.clm_start_date,'') clm_start_date, coalesce(x.clm_start_time,'') clm_start_time
+			 , coalesce(x.clm_end_date,'') clm_end_date , coalesce(x.clm_end_time,'') clm_end_time , coalesce(x.clm_schedule_color,'') as color
+			 , coalesce(x.clm_start_date || ' ' || x.clm_start_time ,'') as start , coalesce(x.clm_end_date || ' ' || x.clm_end_time ,'') as end
 				, coalesce(x.clm_check_complete_value,'') clm_check_complete_value
 				, coalesce(x.clm_check_after_management,'') clm_check_after_management, coalesce(x.clm_comment,'') as name
-				, coalesce(y.clm_user_id,'') clm_user_id , coalesce(y.clm_client_name,'') clm_client_name
-				, coalesce(u.clm_user_name,'') clm_user_name , coalesce(y.clm_check_interval,'') clm_check_interval
+				, coalesce(x.clm_schedule_cycle,'') clm_schedule_cycle
 		from tbl_check_sub_schedule_list x
-		left outer join tbl_check_schedule_list y on x.clm_check_schedule_id = y.clm_check_schedule_id 
-		left outer join tbl_user_info u on y.clm_user_id = u.clm_user_id 
-			where coalesce(x.clm_delete_yn,'N') = 'N' and coalesce(y.clm_delete_yn,'N') = 'N'
+			left outer join tbl_check_schedule_list y on x.clm_check_schedule_id = y.clm_check_schedule_id
+			left outer join tbl_user_info u on y.clm_user_id = u.clm_user_id
+		where coalesce(x.clm_delete_yn,'N') = 'N' and coalesce(y.clm_delete_yn,'N') = 'N'
+		<if test='targetDate != null and targetDate != "" '>
+			and x.clm_start_date = #{targetDate} or x.clm_end_date =  #{targetDate}
+		</if>
 		order by cast(x.clm_check_schedule_id as integer)
-		
+
 	</select>
-	
-	
+
+
 	<select id="UserList" resultType="HashMap" parameterType="HashMap">
 		select cast(ROW_NUMBER() OVER (ORDER BY clm_user_name asc) as varchar) num
 		     , clm_user_id, clm_user_name
@@ -36,9 +38,14 @@
 			</if>
 		 order by clm_user_name asc
 	</select>
-	
-	
-	
+
+	<select id="SubListCountN" resultType="int" parameterType="String">
+		select count(*)
+		from tbl_check_sub_schedule_list
+		where clm_delete_yn = 'N'
+		  and clm_check_schedule_id = #{clm_check_schedule_id}
+	</select>
+
 	<select id="FileList" resultType="HashMap" parameterType="HashMap">
 	
 		select coalesce(x.clm_check_schedule_id,'') clm_check_schedule_id , coalesce(x.clm_file_location,'') clm_file_location
@@ -67,38 +74,65 @@
 	
 	<insert id="Reg" parameterType="HashMap">
 		INSERT INTO tbl_check_schedule_list
-			(clm_check_schedule_id, clm_user_id, clm_check_interval, clm_client_name, clm_reg_datetime, clm_reg_user, clm_delete_yn)
-		VALUES( #{clm_check_schedule_id} , #{clm_user_id}, #{clm_check_interval}, #{clm_client_name}
+			(clm_check_schedule_id
+			, clm_reg_datetime, clm_reg_user, clm_delete_yn)
+		VALUES( #{clm_check_schedule_id}
 			, to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, '', 'N'::character varying)
 			
 	</insert>
 	
 	<insert id="SubReg" parameterType="HashMap">
 		INSERT INTO tbl_check_sub_schedule_list
-			(clm_check_sub_schedule_id, clm_check_schedule_id , clm_check_emergency_yn, clm_start_date, clm_start_time , clm_end_date, clm_end_time 
+			(clm_check_sub_schedule_id, clm_check_schedule_id, clm_schedule_cycle
+			, clm_start_date, clm_start_time , clm_end_date, clm_end_time
 			, clm_check_complete_value, clm_check_after_management
 			,clm_schedule_color , clm_comment, clm_reg_datetime, clm_reg_user, clm_delete_yn)
-		VALUES( #{clm_check_sub_schedule_id}, #{clm_check_schedule_id} , #{clm_check_emergency_yn}, #{clm_start_date}, #{clm_start_time}, #{clm_end_date} , #{clm_end_time}, '', ''
+		VALUES( #{clm_check_sub_schedule_id}, #{clm_check_schedule_id} , #{clm_schedule_cycle}
+		, #{clm_start_date}, #{clm_start_time}, #{clm_end_date} , #{clm_end_time}, '', ''
 			, #{clm_color}, #{clm_comment}, to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying
 			, '', 'N'::character varying)
 			
 	</insert>
 	
-	<update id="Update" parameterType="HashMap">
-		UPDATE tbl_check_schedule_list
-		SET clm_user_id= #{clm_user_id}, clm_check_interval= #{clm_check_interval} , clm_client_name = #{clm_client_name} 
-		, clm_update_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
+	<update id="UpdateAll" parameterType="HashMap">
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
+		  , clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
+			, 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
 		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
 	</update>
+
+	<update id="UpdateToday" parameterType="HashMap">
+
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_start_date=#{clm_start_date} , clm_start_time=#{clm_start_time}
+		  , clm_end_date=#{clm_end_date} , clm_end_time=#{clm_end_time}
+		  , clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
+		  , clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
+			, 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
+		WHERE clm_check_sub_schedule_id= #{clm_check_sub_schedule_id} and clm_check_schedule_id= #{clm_check_schedule_id}
+
+	</update>
+
+	<update id="UpdateNext" parameterType="HashMap">
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
+		  , clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
+			, 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
+		WHERE  clm_check_schedule_id= #{clm_check_schedule_id}
+		  and clm_start_date >= #{clm_start_date}
+
+	</update>
+
 	
 	<update id="SubUpdate" parameterType="HashMap">
 	
 		UPDATE tbl_check_sub_schedule_list
-			SET clm_start_date=#{clm_start_date} , clm_start_time=#{clm_start_time} 
+			SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_start_date=#{clm_start_date} , clm_start_time=#{clm_start_time}
 			, clm_end_date=#{clm_end_date} , clm_end_time=#{clm_end_time}
 			, clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
-			, clm_all_day_yn = #{clm_all_day_yn} , clm_check_emergency_yn = #{clm_check_emergency_yn}
-			, clm_update_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
+			, clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
+			    , 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
 		WHERE clm_check_sub_schedule_id= #{clm_check_sub_schedule_id} and clm_check_schedule_id= #{clm_check_schedule_id}
 		
 	</update>
@@ -108,21 +142,44 @@
 		SET clm_delete_yn = 'Y', clm_delete_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_delete_user=#{clm_user}
 		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
 	</update>
+
+	<update id="DeleteToday" parameterType="HashMap">
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_delete_yn = 'Y'
+		  , clm_delete_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying
+			, clm_delete_user=#{clm_user}
+		WHERE clm_check_sub_schedule_id = #{clm_check_sub_schedule_id}
+		  and clm_check_schedule_id = #{clm_check_schedule_id}
+	</update>
+
+	<update id="DeleteAll" parameterType="HashMap">
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_delete_yn = 'Y', clm_delete_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_delete_user=#{clm_user}
+		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
+	</update>
+
+	<update id="DeleteNext" parameterType="HashMap">
+		UPDATE tbl_check_sub_schedule_list
+		SET clm_delete_yn = 'Y', clm_delete_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_delete_user=#{clm_user}
+		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
+		  and clm_start_date >= #{clm_start_date}
+	</update>
+
 	
 	<update id="FileDelete" parameterType="HashMap">
 		update tbl_schedule_file_info
 		  set clm_delete_yn = 'Y'
 		where clm_check_schedule_file_id = #{clm_check_schedule_file_id} and clm_check_schedule_id = #{clm_check_schedule_id} 
 	</update>
-	
-	
-	
+
 	<update id="Complete" parameterType="HashMap">
+
 		UPDATE tbl_check_schedule_list
 			SET clm_check_after_management = #{clm_check_after_management} 
 			, clm_check_complete_value = #{clm_check_complete_value}
 			, clm_update_datetime= to_char(now(), 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
 		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
+
 	</update>
 	
 	<insert id="FileUpload" parameterType="HashMap">
