@@ -38,3 +38,6 @@ src/main/resources/static/js/chunk-ece5ad14.d10d4fe8.js
 src/main/resources/static/js/chunk-ece5ad14.d10d4fe8.js.map
 src/main/resources/static/css/
 src/main/resources/static/js/
+
+# Add application.properties to .gitignore
+src/main/resources/application.properties
