@@ -93,14 +93,6 @@
 			, '', 'N'::character varying)
 			
 	</insert>
-	
-	<update id="UpdateAll" parameterType="HashMap">
-		UPDATE tbl_check_sub_schedule_list
-		SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
-		  , clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
-			, 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
-		WHERE clm_check_schedule_id= #{clm_check_schedule_id}
-	</update>
 
 	<update id="UpdateToday" parameterType="HashMap">
 
@@ -115,15 +107,15 @@
 	</update>
 
 	<update id="UpdateNext" parameterType="HashMap">
-		UPDATE tbl_check_sub_schedule_list
-		SET clm_schedule_cycle = #{clm_schedule_cycle}, clm_comment=#{clm_comment} , clm_schedule_color = #{clm_color}
-		  , clm_all_day_yn = #{clm_all_day_yn} , clm_update_datetime= to_char(now()
-			, 'YYYYMMDDHH24MISSMS'::text)::character varying, clm_update_user=#{clm_user}
-		WHERE  clm_check_schedule_id= #{clm_check_schedule_id}
+		DELETE from tbl_check_sub_schedule_list 
+		 WHERE clm_check_schedule_id= #{clm_check_schedule_id}
 		  and clm_start_date >= #{clm_start_date}
-
 	</update>
-
+	
+	<update id="UpdateAll" parameterType="HashMap">
+		DELETE from tbl_check_sub_schedule_list 
+		 WHERE clm_check_schedule_id= #{clm_check_schedule_id}
+	</update>
 	
 	<update id="SubUpdate" parameterType="HashMap">
 	

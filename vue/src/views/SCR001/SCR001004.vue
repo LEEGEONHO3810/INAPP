@@ -393,24 +393,26 @@
               <template>
                 <div>
                   <modal :visible="UpdateModal" @close="UpdateModal = false">
-                    <div style="display: flex; ">
-                      <div style="margin:auto; ">
-                        <input type="checkbox" :checked="optionToday" @change="selectOnly('today')">
-                      </div>
-                      <span style="font-weight: bold; margin:auto;">해당 일정</span>
-                    </div>
-                    <div style="display: flex;">
-                      <div style="margin:auto;">
-                        <input type="checkbox" :checked="optionNext" @change="selectOnly('next')">
-                      </div>
-                      <span style="font-weight: bold; margin:auto;">이후 일정까지</span>
-                    </div>
-                    <div style="display: flex;">
-                      <div style="margin:auto;">
-                        <input type="checkbox" :checked="optionAll" @change="selectOnly('all')">
-                      </div>
-                      <span style="font-weight: bold; margin:auto;">모든 일정</span>
-                    </div>
+                     <div style="align-items: start;">
+                        <div style="display: flex; ">
+                           <div >
+                              <input type="checkbox" :checked="optionToday" @change="selectOnly('today')">
+                           </div>
+                           <span style="font-weight: bold; margin:auto;">해당 일정</span>
+                        </div>
+                        <div style="display: flex;">
+                           <div >
+                              <input type="checkbox" :checked="optionNext" @change="selectOnly('next')">
+                           </div>
+                           <span style="font-weight: bold; margin:auto;">이후 일정까지</span>
+                        </div>
+                        <div style="display: flex;">
+                           <div>
+                              <input type="checkbox" :checked="optionAll" @change="selectOnly('all')">
+                           </div>
+                           <span style="font-weight: bold; margin:auto;">모든 일정</span>
+                        </div>
+                     </div>
                     <template v-if="this.updateType == 'del' ">
                       <button style="margin-right: 10%" @click="DeleteRoot()">삭제</button>
                     </template>
@@ -901,6 +903,9 @@ export default {
      UpdateRoot() {
        let option = '';
 
+       if(this.clm_schedule_cycle == 'none'){
+            option = 'optionToday';
+       }
        if (this.optionAll) {
          option = "optionAll";
        } else if (this.optionToday) {
@@ -1022,6 +1027,10 @@ export default {
 
      DeleteRoot(){
        let option = '';
+
+        if(this.clm_schedule_cycle == 'none'){
+            option = 'optionToday';
+        }
 
         if(this.optionAll){
           option ="optionAll";

@@ -27,15 +27,15 @@ public interface SCR001004Mapper {
 	public void SubReg(HashMap<String, String> subMap) throws Exception;
 	public void SubUpdate(HashMap<String, String> map) throws Exception;
 
-	void DeleteAll(HashMap<String, String> map) throws Exception;
+	public void DeleteAll(HashMap<String, String> map) throws Exception;
 
-	void DeleteNext(HashMap<String, String> map) throws Exception;
+	public void DeleteNext(HashMap<String, String> map) throws Exception;
 
-	int SubListCountN(String clmCheckScheduleId) throws Exception;
+	public int SubListCountN(String clmCheckScheduleId) throws Exception;
 
-	void UpdateAll(HashMap<String, String> map) throws Exception;
+	public void UpdateAll(HashMap<String, String> map) throws Exception;
 
-	void UpdateNext(HashMap<String, String> map) throws Exception;
+	public void UpdateNext(HashMap<String, String> map) throws Exception;
 
-	void UpdateToday(HashMap<String, String> map) throws Exception;
+	public void UpdateToday(HashMap<String, String> map) throws Exception;
 }

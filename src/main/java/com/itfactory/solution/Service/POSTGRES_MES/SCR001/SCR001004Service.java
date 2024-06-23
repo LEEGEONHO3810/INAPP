@@ -230,14 +230,54 @@ public class SCR001004Service {
 	}
 	
 	public void Update(HashMap<String, String> map, List<MultipartFile> files , String comment , String option) throws Exception {
-		System.out.println(map);
-		System.out.println(option);
-		if(option.equals("optionAll")){
+        String SubMaxSeq = "";
+	    
+	    SimpleDateFormat fDate = new SimpleDateFormat("yyyy-MM-dd");
+	    Calendar cal = Calendar.getInstance();
+	   
+	    String cycle = map.get("clm_schedule_cycle");
+
+	    if(option.equals("optionAll")){
 			SCR001004Mapper.UpdateAll(map);
+
+	    }else if(option.equals("optionNext")) {
+	    	SCR001004Mapper.UpdateNext(map);
+	    }
+	    
+		if(option.equals("optionAll")){
+			if (cycle.equals("none")) {
+		        SubMaxSeq = SCR001004Mapper.SubSelectMaxSeq();
+		        map.put("clm_check_sub_schedule_id", SubMaxSeq);
+		        SCR001004Mapper.SubReg(map);
+		    } else if (cycle.equals("day")) {
+		        handleDayCycle(map, fDate, cal);
+		    } else if (cycle.equals("endMonth")) {
+		        handleEndMonthCycle(map, fDate, cal);
+		    } else if (cycle.equals("weekday")) {
+		    	handleWeekdayCycle(map, fDate, cal);
+			} else if (cycle.equals("weekend")) {
+				handleWeekendCycle(map, fDate, cal);
+			}
+			
 		}else if(option.equals("optionToday")){
+			
 			SCR001004Mapper.UpdateToday(map);
+			
 		}else if(option.equals("optionNext")){
-			SCR001004Mapper.UpdateNext(map);
+			
+			if (cycle.equals("none")) {
+		        SubMaxSeq = SCR001004Mapper.SubSelectMaxSeq();
+		        map.put("clm_check_sub_schedule_id", SubMaxSeq);
+		        SCR001004Mapper.SubReg(map);
+		    } else if (cycle.equals("day")) {
+		        handleDayCycle(map, fDate, cal);
+		    } else if (cycle.equals("endMonth")) {
+		        handleEndMonthCycle(map, fDate, cal);
+		    } else if (cycle.equals("weekday")) {
+		    	handleWeekdayCycle(map, fDate, cal);
+			} else if (cycle.equals("weekend")) {
+				handleWeekendCycle(map, fDate, cal);
+			}
 		}
 		if(files != null && !files.isEmpty()) {
 	    	FileUpload(map,files,comment);

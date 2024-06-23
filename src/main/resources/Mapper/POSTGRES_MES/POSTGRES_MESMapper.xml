@@ -267,4 +267,10 @@
 		 where clm_code_id = #{clm_code_id}
 	</update>
 	
+	
+	
+	
+	
+	
+	
 </mapper>

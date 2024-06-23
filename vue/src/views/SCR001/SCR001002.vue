@@ -131,8 +131,8 @@
 						<div style="width: 55%;" >
 							<input style="align-self: center; width: 100%;padding-left:5px;" maxlength="15" v-model="accountItem.clm_title" />
 						</div> 
-						<div v-if="accountItem.clm_content_seq == '1'" style="float: right; text-align: end;">
-							<i class="mdi mdi-content-save" style="color: springgreen;" v-on:click="SaveContent(accountItem, index)"></i>
+						<div v-if="accountItem.clm_content_seq == '1'" style="float: right; text-align: end; width: 55%; ">
+							<i  class="mdi mdi-content-save" style="color: springgreen;" v-on:click="SaveContent(accountItem, index)"></i>
 							&nbsp;
 							<i class="mdi mdi-delete" style="color: red;" v-on:click="DeleteContent(accountItem, index)"></i>
 							&nbsp;
